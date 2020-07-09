@@ -11,7 +11,7 @@
 
 const char *version = "1.6";
 
-ADC_MODE(ADC_VCC);
+//ADC_MODE(ADC_VCC);
 
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
@@ -78,14 +78,30 @@ void setup()
 
   Serial.begin(115200);
 
-  uint16 vcc = ESP.getVcc();
-  Serial.println(vcc);
-  if (vcc < 2800)
+  uint32 rtc_data;
+  String a;
+
+  ESP.rtcUserMemoryRead(100, &rtc_data, sizeof(rtc_data));
+
+  Serial.println(rtc_data);
+
+  if (rtc_data != 52011)
   {
-    Serial.println("deep sleep max");
-    ESP.deepSleep(ESP.deepSleepMax());
-    
+    Serial.println("write rtc");
+    rtc_data = 52011;
+    ESP.rtcUserMemoryWrite(100, &rtc_data, sizeof(rtc_data));
   }
+
+  int soilMoisture;
+  for(int i = 0; i<5; i++)
+  {
+    soilMoisture = analogRead(A0);
+  }
+  Serial.println(soilMoisture);
+  soilMoisture = map(soilMoisture, 1024, 3, 0, 100);
+  Serial.println(soilMoisture);
+  
+  //ESP.deepSleep(ESP.deepSleepMax());
 
   WiFi.mode(WIFI_STA);
 
@@ -140,15 +156,13 @@ void setup()
     goSleep(5 * 60);
   }
 
-  Serial.println(ESP.getVcc());
-
   const size_t capacity = JSON_OBJECT_SIZE(6);
   DynamicJsonDocument doc(capacity);
 
   doc["temp"] = temp;
   doc["hum"] = hum;
   doc["id"] = String(ESP.getChipId());
-  doc["power"] = ESP.getVcc();
+  doc["soilMois"] = soilMoisture;
   doc["version"] = version;
   char buffer[121];
 
