@@ -4,7 +4,6 @@
 #include <WiFiClient.h>
 #include <Wire.h>
 #include "SHTSensor.h"
-#include <Ticker.h>
 #include <ArduinoJson.h>
 #include <ESP8266httpUpdate.h>
 
@@ -12,8 +11,8 @@ const char *version = "1.4";
 
 //ADC_MODE(ADC_VCC);
 
-const char ssid[] = "HOME";
-const char pass[] = "12345679";
+const char ssid[] = "wanlaoshi";
+const char pass[] = "jiejiemomo";
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
 
