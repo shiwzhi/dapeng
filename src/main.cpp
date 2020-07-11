@@ -79,20 +79,6 @@ void setup()
 
   Serial.begin(115200);
 
-  uint32 rtc_data;
-  String a;
-
-  ESP.rtcUserMemoryRead(100, &rtc_data, sizeof(rtc_data));
-
-  Serial.println(rtc_data);
-
-  if (rtc_data != 52011)
-  {
-    Serial.println("write rtc");
-    rtc_data = 52011;
-    ESP.rtcUserMemoryWrite(100, &rtc_data, sizeof(rtc_data));
-  }
-
   int soilMoisture;
   for(int i = 0; i<5; i++)
   {
