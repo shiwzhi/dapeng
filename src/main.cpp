@@ -8,7 +8,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266httpUpdate.h>
 
-const char *version = "1.4";
+const char *version = "1.5";
 
 ADC_MODE(ADC_VCC);
 
@@ -76,20 +76,6 @@ void setup()
   start_time = millis();
 
   Serial.begin(115200);
-
-  uint32 rtc_data;
-  String a;
-
-  ESP.rtcUserMemoryRead(100, &rtc_data, sizeof(rtc_data));
-
-  Serial.println(rtc_data);
-
-  if (rtc_data != 52011)
-  {
-    Serial.println("write rtc");
-    rtc_data = 52011;
-    ESP.rtcUserMemoryWrite(100, &rtc_data, sizeof(rtc_data));
-  }
 
   uint16 vcc = ESP.getVcc();
   Serial.println(vcc);
