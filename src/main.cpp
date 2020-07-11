@@ -29,6 +29,8 @@ int sht_vcc = D5;
 float temp = 0;
 float hum = 0;
 
+ulong start_time;
+
 void goSleep(int sec)
 {
   Serial.println("go sleep for " + String(sec));
@@ -68,8 +70,10 @@ void update_error(int err)
   Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
+
 void setup()
 {
+  start_time = millis();
 
   Serial.begin(115200);
 
@@ -169,14 +173,21 @@ void setup()
     }
   }
 
-  uint8 sleep = client.read();
+  uint8 sleep = 5;
+  uint8 sleep_read = client.read();
+  if (sleep_read != -1) {
+    sleep = sleep_read;
+  }
+  
   uint8 ota = client.read();
+  
+
   Serial.println(sleep);
   Serial.println(ota);
   // Close the connection
   Serial.println();
 
-  if (ota)
+  if (ota == 1)
   {
     ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
     ESPhttpUpdate.onStart(update_started);
@@ -212,5 +223,8 @@ void setup()
 
 void loop()
 {
+  if (millis() - start_time > 60*1000) {
+    goSleep(5*60);
+  }
   // timer1.update();
 }
