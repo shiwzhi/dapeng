@@ -12,8 +12,8 @@ const char *version = "1.5";
 
 ADC_MODE(ADC_VCC);
 
-const char ssid[] = "HOME";
-const char pass[] = "12345679";
+const char ssid[] = "wanlaoshi";
+const char pass[] = "jiejiemomo";
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
 
