@@ -8,6 +8,9 @@
 #include <Ticker.h>
 #include <ArduinoJson.h>
 #include <ESP8266httpUpdate.h>
+#include "DHT.h"
+
+#define sensorType "DHT11"
 
 const char *version = "1.6";
 
@@ -19,18 +22,21 @@ const int httpsPort = 9527;
 IPAddress staticIP(192, 168, 2, 200);
 IPAddress gateway(192, 168, 2, 1);
 IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(223,5,5,5);
-IPAddress dns1(223,6,6,6);
+IPAddress dns(223, 5, 5, 5);
+IPAddress dns1(223, 6, 6, 6);
 
 SHTSensor sht;
 int sht_vcc = D5;
 
-float temp = 0;
-float hum = 0;
+float temp = NAN;
+float hum = NAN;
 
 ulong start_time;
 
 ESP8266WiFiMulti wifiMulti;
+
+DHT dht(D1, DHT11);
+int dht_vcc = D2;
 
 void goSleep(int sec)
 {
@@ -71,7 +77,6 @@ void update_error(int err)
   Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
-
 void setup()
 {
   start_time = millis();
@@ -84,7 +89,6 @@ void setup()
   {
     Serial.println("deep sleep max");
     ESP.deepSleep(ESP.deepSleepMax());
-    
   }
 
   WiFi.mode(WIFI_STA);
@@ -96,25 +100,47 @@ void setup()
   wifiMulti.addAP("wanlaoshi", "jiejiemomo");
   wifiMulti.addAP("OnePlus7", "12345679");
 
+  // pinMode(sht_vcc, OUTPUT);
+  // digitalWrite(sht_vcc, HIGH);
+  // Wire.begin(D1, D2);
 
+  // if (sht.init())
+  // {
+  //   Serial.print("sht init(): success\n");
+  // }
+  // else
+  // {
+  //   Serial.print("sht init(): failed\n");
+  //   goSleep(5 * 60);
+  // }
 
-  pinMode(sht_vcc, OUTPUT);
-  digitalWrite(sht_vcc, HIGH);
-  Wire.begin(D1, D2);
+  // sht.setAccuracy(SHTSensor::SHT_ACCURACY_HIGH);
 
-  if (sht.init())
+  // sht30_measure();
+
+  pinMode(dht_vcc, OUTPUT);
+  digitalWrite(dht_vcc, HIGH);
+  dht.begin();
+  uint dht_retry = 0;
+  while (dht_retry < 1000)
   {
-    Serial.print("sht init(): success\n");
+    temp = dht.readHumidity();
+    hum = dht.readTemperature();
+    if (isnan(temp) || isnan(hum))
+    {
+      dht_retry++;
+      continue;
+    }
+    Serial.println("temp:" + String(temp));
+    Serial.println("hum:" + String(hum));
+    break;
   }
-  else
+  if (dht_retry > 999)
   {
-    Serial.print("sht init(): failed\n");
+    Serial.println("DHT failed");
     goSleep(5 * 60);
   }
-
-  sht.setAccuracy(SHTSensor::SHT_ACCURACY_HIGH);
-
-  sht30_measure();
+  Serial.println("DHTRETRY:" + String(dht_retry));
 
   int wifiRetry = 0;
   while (wifiMulti.run() != WL_CONNECTED)
@@ -142,7 +168,7 @@ void setup()
 
   Serial.println(ESP.getVcc());
 
-  const size_t capacity = JSON_OBJECT_SIZE(6);
+  const size_t capacity = JSON_OBJECT_SIZE(7);
   DynamicJsonDocument doc(capacity);
 
   doc["temp"] = temp;
@@ -150,7 +176,8 @@ void setup()
   doc["id"] = String(ESP.getChipId());
   doc["power"] = ESP.getVcc();
   doc["version"] = version;
-  char buffer[121];
+  doc["sensor_type"] = sensorType;
+  char buffer[155];
 
   serializeJson(doc, buffer);
 
@@ -171,12 +198,12 @@ void setup()
 
   uint8 sleep = 5;
   uint8 sleep_read = client.read();
-  if (sleep_read != -1 && sleep_read > 0) {
+  if (sleep_read != -1 && sleep_read > 0)
+  {
     sleep = sleep_read;
   }
-  
+
   uint8 ota = client.read();
-  
 
   Serial.println(sleep);
   Serial.println(ota);
@@ -219,8 +246,9 @@ void setup()
 
 void loop()
 {
-  if (millis() - start_time > 60*1000) {
-    goSleep(5*60);
+  if (millis() - start_time > 60 * 1000)
+  {
+    goSleep(5 * 60);
   }
   delay(1000);
   // timer1.update();
