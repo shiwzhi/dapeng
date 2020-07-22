@@ -10,18 +10,14 @@
 
 const char *version = "1.6";
 
-//ADC_MODE(ADC_VCC);
-
-const char ssid[] = "wanlaoshi";
-const char pass[] = "jiejiemomo";
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
 
 IPAddress staticIP(192, 168, 2, 210);
 IPAddress gateway(192, 168, 2, 1);
 IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(223,5,5,5);
-IPAddress dns1(223,6,6,6);
+IPAddress dns(223, 5, 5, 5);
+IPAddress dns1(223, 6, 6, 6);
 
 SHTSensor sht;
 int sht_vcc = D5;
@@ -72,7 +68,6 @@ void update_error(int err)
   Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
-
 void setup()
 {
   start_time = millis();
@@ -80,26 +75,12 @@ void setup()
   Serial.begin(115200);
 
   int soilMoisture;
-  for(int i = 0; i<5; i++)
-  {
-    soilMoisture = analogRead(A0);
-  }
+
+  soilMoisture = analogRead(A0);
+
   Serial.println(soilMoisture);
   soilMoisture = map(soilMoisture, 1024, 3, 0, 100);
   Serial.println(soilMoisture);
-  
-  //ESP.deepSleep(ESP.deepSleepMax());
-
-  WiFi.mode(WIFI_STA);
-
-  // WiFi.config(staticIP, gateway, subnet, dns, dns1);
-  // WiFi.begin(ssid, pass);
-
-  wifiMulti.addAP("HOME", "12345679");
-  wifiMulti.addAP("wanlaoshi", "jiejiemomo");
-  wifiMulti.addAP("OnePlus7", "12345679");
-
-
 
   pinMode(sht_vcc, OUTPUT);
   digitalWrite(sht_vcc, HIGH);
@@ -118,6 +99,14 @@ void setup()
   sht.setAccuracy(SHTSensor::SHT_ACCURACY_HIGH);
 
   sht30_measure();
+
+  WiFi.mode(WIFI_STA);
+
+  // WiFi.config(staticIP, gateway, subnet, dns, dns1);
+  
+  wifiMulti.addAP("wanlaoshi", "jiejiemomo");
+  wifiMulti.addAP("HOME", "12345679");
+  wifiMulti.addAP("OnePlus7", "12345679");
 
   int wifiRetry = 0;
   while (wifiMulti.run() != WL_CONNECTED)
@@ -172,12 +161,12 @@ void setup()
 
   uint8 sleep = 5;
   uint8 sleep_read = client.read();
-  if (sleep_read != -1 && sleep_read > 0) {
+  if (sleep_read != -1 && sleep_read > 0)
+  {
     sleep = sleep_read;
   }
-  
+
   uint8 ota = client.read();
-  
 
   Serial.println(sleep);
   Serial.println(ota);
@@ -220,9 +209,9 @@ void setup()
 
 void loop()
 {
-  if (millis() - start_time > 60*1000) {
-    goSleep(5*60);
+  if (millis() - start_time > 60 * 1000)
+  {
+    goSleep(5 * 60);
   }
   delay(1000);
-  // timer1.update();
 }
