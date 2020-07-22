@@ -11,7 +11,7 @@
 
 const char *version = "1.6";
 
-ADC_MODE(ADC_VCC);
+// ADC_MODE(ADC_VCC);
 
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
@@ -19,8 +19,8 @@ const int httpsPort = 9527;
 IPAddress staticIP(192, 168, 2, 200);
 IPAddress gateway(192, 168, 2, 1);
 IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(223,5,5,5);
-IPAddress dns1(223,6,6,6);
+IPAddress dns(223, 5, 5, 5);
+IPAddress dns1(223, 6, 6, 6);
 
 SHTSensor sht;
 int sht_vcc = D5;
@@ -71,7 +71,6 @@ void update_error(int err)
   Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
-
 void setup()
 {
   start_time = millis();
@@ -84,7 +83,6 @@ void setup()
   {
     Serial.println("deep sleep max");
     ESP.deepSleep(ESP.deepSleepMax());
-    
   }
 
   WiFi.mode(WIFI_STA);
@@ -95,8 +93,6 @@ void setup()
   wifiMulti.addAP("HOME", "12345679");
   wifiMulti.addAP("wanlaoshi", "jiejiemomo");
   wifiMulti.addAP("OnePlus7", "12345679");
-
-
 
   pinMode(sht_vcc, OUTPUT);
   digitalWrite(sht_vcc, HIGH);
@@ -140,15 +136,29 @@ void setup()
     goSleep(5 * 60);
   }
 
-  Serial.println(ESP.getVcc());
+  // Serial.println(ESP.getVcc());
 
   const size_t capacity = JSON_OBJECT_SIZE(6);
   DynamicJsonDocument doc(capacity);
 
+  int adc_reading;
+
+  for (int i = 0; i < 20; i++)
+  {
+    adc_reading = analogRead(A0);
+  }
+
+  Serial.println(adc_reading);
+  adc_reading = map(adc_reading, 0, 1023, 0, 933);
+  Serial.println(adc_reading);
+  adc_reading = map(adc_reading, 0, 933, 0, 4200);
+
+  Serial.println(adc_reading);
+
   doc["temp"] = temp;
   doc["hum"] = hum;
   doc["id"] = String(ESP.getChipId());
-  doc["power"] = ESP.getVcc();
+  doc["power"] = adc_reading;
   doc["version"] = version;
   char buffer[121];
 
@@ -171,12 +181,12 @@ void setup()
 
   uint8 sleep = 5;
   uint8 sleep_read = client.read();
-  if (sleep_read != -1 && sleep_read > 0) {
+  if (sleep_read != -1 && sleep_read > 0)
+  {
     sleep = sleep_read;
   }
-  
+
   uint8 ota = client.read();
-  
 
   Serial.println(sleep);
   Serial.println(ota);
@@ -219,8 +229,9 @@ void setup()
 
 void loop()
 {
-  if (millis() - start_time > 60*1000) {
-    goSleep(5*60);
+  if (millis() - start_time > 60 * 1000)
+  {
+    goSleep(5 * 60);
   }
   delay(1000);
   // timer1.update();
