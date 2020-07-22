@@ -35,8 +35,8 @@ ulong start_time;
 
 ESP8266WiFiMulti wifiMulti;
 
-DHT dht(D1, DHT11);
-int dht_vcc = D2;
+DHT dht(D2, DHT11);
+int dht_vcc = D1;
 
 void goSleep(int sec)
 {
@@ -120,27 +120,25 @@ void setup()
 
   pinMode(dht_vcc, OUTPUT);
   digitalWrite(dht_vcc, HIGH);
+  delay(1000);
   dht.begin();
+  hum = dht.readHumidity();
+  temp = dht.readTemperature();
   uint dht_retry = 0;
-  while (dht_retry < 1000)
+  while (isnan(temp) || isnan(hum))
   {
-    temp = dht.readHumidity();
-    hum = dht.readTemperature();
-    if (isnan(temp) || isnan(hum))
+    delay(100);
+    hum = dht.readHumidity();
+    temp = dht.readTemperature();
+    dht_retry++;
+    if (dht_retry > 50)
     {
-      dht_retry++;
-      continue;
+      Serial.println("DHT Failed");
+      goSleep(5);
     }
-    Serial.println("temp:" + String(temp));
-    Serial.println("hum:" + String(hum));
-    break;
   }
-  if (dht_retry > 999)
-  {
-    Serial.println("DHT failed");
-    goSleep(5 * 60);
-  }
-  Serial.println("DHTRETRY:" + String(dht_retry));
+  Serial.println("temp:" + String(temp));
+  Serial.println("hum:" + String(hum));
 
   int wifiRetry = 0;
   while (wifiMulti.run() != WL_CONNECTED)
@@ -251,5 +249,4 @@ void loop()
     goSleep(5 * 60);
   }
   delay(1000);
-  // timer1.update();
 }
