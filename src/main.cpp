@@ -79,6 +79,9 @@ void update_error(int err)
 
 void setup()
 {
+  pinMode(dht_vcc, OUTPUT);
+  digitalWrite(dht_vcc, HIGH);
+  
   start_time = millis();
 
   Serial.begin(115200);
@@ -118,9 +121,22 @@ void setup()
 
   // sht30_measure();
 
-  pinMode(dht_vcc, OUTPUT);
-  digitalWrite(dht_vcc, HIGH);
-  delay(1000);
+  int wifiRetry = 0;
+  while (wifiMulti.run() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+    wifiRetry++;
+    if (wifiRetry > 60)
+    {
+      goSleep(5 * 60);
+    }
+  }
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
   dht.begin();
   hum = dht.readHumidity();
   temp = dht.readTemperature();
@@ -139,22 +155,6 @@ void setup()
   }
   Serial.println("temp:" + String(temp));
   Serial.println("hum:" + String(hum));
-
-  int wifiRetry = 0;
-  while (wifiMulti.run() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-    wifiRetry++;
-    if (wifiRetry > 60)
-    {
-      goSleep(5 * 60);
-    }
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
 
   WiFiClient client;
 
