@@ -9,18 +9,12 @@
 #include <ArduinoJson.h>
 #include <ESP8266httpUpdate.h>
 
-const char *version = "1.6";
+const char *version = "1.7.3";
 
 // ADC_MODE(ADC_VCC);
 
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
-
-IPAddress staticIP(192, 168, 2, 200);
-IPAddress gateway(192, 168, 2, 1);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(223, 5, 5, 5);
-IPAddress dns1(223, 6, 6, 6);
 
 SHTSensor sht;
 int sht_vcc = D5;
@@ -87,10 +81,8 @@ void setup()
 
   WiFi.mode(WIFI_STA);
 
-  // WiFi.config(staticIP, gateway, subnet, dns, dns1);
-  // WiFi.begin(ssid, pass);
-
   wifiMulti.addAP("HOME", "12345679");
+  wifiMulti.addAP("HOME1", "12345679");
   wifiMulti.addAP("wanlaoshi", "jiejiemomo");
   wifiMulti.addAP("OnePlus7", "12345679");
 
@@ -110,8 +102,6 @@ void setup()
 
   sht.setAccuracy(SHTSensor::SHT_ACCURACY_HIGH);
 
-  sht30_measure();
-
   int wifiRetry = 0;
   while (wifiMulti.run() != WL_CONNECTED)
   {
@@ -128,6 +118,8 @@ void setup()
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
 
+  sht30_measure();
+
   WiFiClient client;
 
   if (!client.connect(host, httpsPort))
@@ -138,21 +130,17 @@ void setup()
 
   // Serial.println(ESP.getVcc());
 
-  const size_t capacity = JSON_OBJECT_SIZE(6);
+  const size_t capacity = JSON_OBJECT_SIZE(7);
   DynamicJsonDocument doc(capacity);
 
   int adc_reading;
 
-  for (int i = 0; i < 20; i++)
-  {
-    adc_reading = analogRead(A0);
-  }
+
+  adc_reading = analogRead(A0);
 
   Serial.println(adc_reading);
-  adc_reading = map(adc_reading, 0, 1023, 0, 933);
-  Serial.println(adc_reading);
+  adc_reading = map(adc_reading, 0, 1023, 0, 1000);
   adc_reading = map(adc_reading, 0, 933, 0, 4200);
-
   Serial.println(adc_reading);
 
   doc["temp"] = temp;
@@ -160,7 +148,8 @@ void setup()
   doc["id"] = String(ESP.getChipId());
   doc["power"] = adc_reading;
   doc["version"] = version;
-  char buffer[121];
+  doc["sensor_type"] = "SHT30";
+  char buffer[160];
 
   serializeJson(doc, buffer);
 
@@ -234,5 +223,4 @@ void loop()
     goSleep(5 * 60);
   }
   delay(1000);
-  // timer1.update();
 }
