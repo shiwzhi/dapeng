@@ -4,7 +4,6 @@
 #include <WiFiClientSecure.h>
 #include <WiFiClient.h>
 #include <Wire.h>
-#include "SHTSensor.h"
 #include <Ticker.h>
 #include <ArduinoJson.h>
 #include <ESP8266httpUpdate.h>
@@ -12,24 +11,13 @@
 
 #define sensorType "DHT11"
 
-const char *version = "1.6";
-
+const char *version = "1.7.3";
 ADC_MODE(ADC_VCC);
-
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
 
-IPAddress staticIP(192, 168, 2, 200);
-IPAddress gateway(192, 168, 2, 1);
-IPAddress subnet(255, 255, 255, 0);
-IPAddress dns(223, 5, 5, 5);
-IPAddress dns1(223, 6, 6, 6);
-
-SHTSensor sht;
-int sht_vcc = D5;
-
-float temp = NAN;
-float hum = NAN;
+float temp = 0;
+float hum = 0;
 
 ulong start_time;
 
@@ -44,18 +32,6 @@ void goSleep(int sec)
   ESP.deepSleep(sec * 1000 * 1000);
 }
 
-void sht30_measure()
-{
-  if (sht.readSample())
-  {
-    hum = sht.getHumidity();
-    temp = sht.getTemperature();
-  }
-  else
-  {
-    Serial.print("Error in readSample()\n");
-  }
-}
 
 void update_started()
 {
@@ -81,7 +57,7 @@ void setup()
 {
   pinMode(dht_vcc, OUTPUT);
   digitalWrite(dht_vcc, HIGH);
-  
+
   start_time = millis();
 
   Serial.begin(115200);
@@ -96,30 +72,10 @@ void setup()
 
   WiFi.mode(WIFI_STA);
 
-  // WiFi.config(staticIP, gateway, subnet, dns, dns1);
-  // WiFi.begin(ssid, pass);
-
   wifiMulti.addAP("HOME", "12345679");
+  wifiMulti.addAP("HOME1", "12345679");
   wifiMulti.addAP("wanlaoshi", "jiejiemomo");
   wifiMulti.addAP("OnePlus7", "12345679");
-
-  // pinMode(sht_vcc, OUTPUT);
-  // digitalWrite(sht_vcc, HIGH);
-  // Wire.begin(D1, D2);
-
-  // if (sht.init())
-  // {
-  //   Serial.print("sht init(): success\n");
-  // }
-  // else
-  // {
-  //   Serial.print("sht init(): failed\n");
-  //   goSleep(5 * 60);
-  // }
-
-  // sht.setAccuracy(SHTSensor::SHT_ACCURACY_HIGH);
-
-  // sht30_measure();
 
   int wifiRetry = 0;
   while (wifiMulti.run() != WL_CONNECTED)
@@ -237,7 +193,6 @@ void setup()
 
     Serial.println("closing connection");
   }
-
   client.stop();
   goSleep(sleep * 60);
 }
