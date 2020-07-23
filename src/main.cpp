@@ -9,7 +9,7 @@
 #include <ArduinoJson.h>
 #include <ESP8266httpUpdate.h>
 
-const char *version = "1.7.3";
+const char *version = "1.7.4";
 
 // ADC_MODE(ADC_VCC);
 
@@ -133,14 +133,14 @@ void setup()
   const size_t capacity = JSON_OBJECT_SIZE(7);
   DynamicJsonDocument doc(capacity);
 
-  int adc_reading;
+  float adc_reading;
 
 
   adc_reading = analogRead(A0);
 
   Serial.println(adc_reading);
   adc_reading = map(adc_reading, 0, 1023, 0, 1000);
-  adc_reading = map(adc_reading, 0, 933, 0, 4200);
+  adc_reading = map(adc_reading, 0, 954.54, 0, 4200);
   Serial.println(adc_reading);
 
   doc["temp"] = temp;
