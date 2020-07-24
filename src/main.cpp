@@ -11,8 +11,8 @@
 
 #define sensorType "DHT11"
 
-const char *version = "1.7.3";
-ADC_MODE(ADC_VCC);
+const char *version = "1.7.4";
+// ADC_MODE(ADC_VCC);
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
 
@@ -23,15 +23,14 @@ ulong start_time;
 
 ESP8266WiFiMulti wifiMulti;
 
-DHT dht(D2, DHT11);
-int dht_vcc = D1;
+DHT dht(13, DHT11);
+int dht_vcc = 12;
 
-void goSleep(int sec)
+void goSleepSec(int sec)
 {
   Serial.println("go sleep for " + String(sec));
   ESP.deepSleep(sec * 1000 * 1000);
 }
-
 
 void update_started()
 {
@@ -55,28 +54,17 @@ void update_error(int err)
 
 void setup()
 {
+  start_time = millis();
+  Serial.begin(115200);
+
   pinMode(dht_vcc, OUTPUT);
   digitalWrite(dht_vcc, HIGH);
 
-  start_time = millis();
-
-  Serial.begin(115200);
-
-  uint16 vcc = ESP.getVcc();
-  Serial.println(vcc);
-  if (vcc < 2800)
-  {
-    Serial.println("deep sleep max");
-    ESP.deepSleep(ESP.deepSleepMax());
-  }
-
   WiFi.mode(WIFI_STA);
-
   wifiMulti.addAP("HOME", "12345679");
   wifiMulti.addAP("HOME1", "12345679");
   wifiMulti.addAP("wanlaoshi", "jiejiemomo");
   wifiMulti.addAP("OnePlus7", "12345679");
-
   int wifiRetry = 0;
   while (wifiMulti.run() != WL_CONNECTED)
   {
@@ -85,7 +73,7 @@ void setup()
     wifiRetry++;
     if (wifiRetry > 60)
     {
-      goSleep(5 * 60);
+      goSleepSec(5 * 60);
     }
   }
   Serial.println("");
@@ -94,6 +82,7 @@ void setup()
   Serial.println(WiFi.localIP());
 
   dht.begin();
+  delay(1000);
   hum = dht.readHumidity();
   temp = dht.readTemperature();
   uint dht_retry = 0;
@@ -106,32 +95,37 @@ void setup()
     if (dht_retry > 50)
     {
       Serial.println("DHT Failed");
-      goSleep(5);
+      goSleepSec(5 * 60);
     }
   }
   Serial.println("temp:" + String(temp));
   Serial.println("hum:" + String(hum));
 
   WiFiClient client;
-
   if (!client.connect(host, httpsPort))
   {
     Serial.println("connection failed");
-    goSleep(5 * 60);
+    goSleepSec(5 * 60);
   }
 
-  Serial.println(ESP.getVcc());
+  pinMode(4, OUTPUT);
+  digitalWrite(4, HIGH);
+  delay(1000);
+  int soilMois = analogRead(A0);
+  Serial.println(soilMois);
+  soilMois = map(soilMois, 0, 1023, 0, 1000);
+  soilMois = map(soilMois, 185, 327, 100, 0);
+  Serial.println(soilMois);
 
   const size_t capacity = JSON_OBJECT_SIZE(7);
   DynamicJsonDocument doc(capacity);
-
   doc["temp"] = temp;
   doc["hum"] = hum;
   doc["id"] = String(ESP.getChipId());
-  doc["power"] = ESP.getVcc();
+  doc["soilMois"] = soilMois;
   doc["version"] = version;
   doc["sensor_type"] = sensorType;
-  char buffer[155];
+  char buffer[170];
 
   serializeJson(doc, buffer);
 
@@ -146,7 +140,7 @@ void setup()
     {
       Serial.println(">>> Client Timeout !");
       client.stop();
-      goSleep(5 * 60);
+      goSleepSec(5 * 60);
     }
   }
 
@@ -194,14 +188,14 @@ void setup()
     Serial.println("closing connection");
   }
   client.stop();
-  goSleep(sleep * 60);
+  goSleepSec(sleep * 60);
 }
 
 void loop()
 {
   if (millis() - start_time > 60 * 1000)
   {
-    goSleep(5 * 60);
+    goSleepSec(5 * 60);
   }
   delay(1000);
 }
