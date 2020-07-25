@@ -61,6 +61,7 @@ void setup()
   digitalWrite(dht_vcc, HIGH);
 
   WiFi.mode(WIFI_STA);
+  wifiMulti.addAP("wlw", "wxp123456");
   wifiMulti.addAP("HOME", "12345679");
   wifiMulti.addAP("HOME1", "12345679");
   wifiMulti.addAP("wanlaoshi", "jiejiemomo");
