@@ -1,12 +1,15 @@
 #include <Arduino.h>
+ADC_MODE(ADC_VCC);
 #include "run_wifi.h"
 #include "run_ota.h"
 #include "run_upload.h"
 #include "run_sht30.h"
-#include "run_ds18b20.h"
+
+
+
 
 String version = "2.0.2";
-// ADC_MODE(ADC_VCC);
+
 
 ulong start_time;
 
@@ -33,9 +36,8 @@ void setup()
         goSleepSec(5 * 60);
     }
 
-    run_ds18b20();
 
-    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), version.c_str(), "SHT30"))
+    if (!upload_tcp(readTemp(), readHum(), version.c_str(), "SHT30"))
     {
         goSleepSec(5 * 60);
     }

@@ -7,7 +7,7 @@ float hum = 0;
 
 bool run_sht()
 {
-    Wire.begin(5, 4);
+    Wire.begin(13, 12);
     if (sht.init())
     {
         Serial.print("sht init(): success\n");
