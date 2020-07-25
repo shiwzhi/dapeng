@@ -11,7 +11,7 @@
 
 #define sensorType "DHT11"
 
-const char *version = "1.7.4";
+const char *version = "1.7.5";
 ADC_MODE(ADC_VCC);
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
