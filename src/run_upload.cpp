@@ -15,16 +15,21 @@ bool upload_tcp(float temp, float hum, const char *version, const char *sensorTy
         return false;
     }
 
-    const size_t capacity = JSON_OBJECT_SIZE(7);
+    const size_t capacity = JSON_OBJECT_SIZE(8);
     DynamicJsonDocument doc(capacity);
+
+    float soilMois = analogRead(A0);
+    Serial.println(soilMois);
+    soilMois = map(soilMois, 0, 1023, 0, 1000);
+    soilMois = map(soilMois, 180, 330, 100, 0);
 
     doc["temp"] = temp;
     doc["hum"] = hum;
     doc["id"] = String(ESP.getChipId());
-    doc["power"] = ESP.getVcc();
+    doc["soilMois"] = soilMois;
     doc["version"] = version;
     doc["sensor_type"] = sensorType;
-    char buffer[155];
+    char buffer[180];
 
     serializeJson(doc, buffer);
 

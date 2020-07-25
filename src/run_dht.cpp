@@ -1,8 +1,8 @@
 #include "run_dht.h"
 
-DHT dht(D2, DHT11);
+DHT dht(13, DHT11);
 
-int dht_vcc = D1;
+int dht_vcc = 12;
 
 float hum = 0;
 float temp = 0;

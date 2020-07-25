@@ -4,9 +4,7 @@
 #include "run_ota.h"
 #include "run_upload.h"
 
-String version = "2.0.0";
-ADC_MODE(ADC_VCC);
-
+String version = "2.0.3";
 ulong start_time;
 
 void goSleepSec(int sec)
@@ -19,18 +17,13 @@ void goSleepSec(int sec)
 
 void setup()
 {
+    int soil_vcc = 4;
+    pinMode(soil_vcc, OUTPUT);
+    digitalWrite(soil_vcc, HIGH);
     setup_dht();
     start_time = millis();
 
     Serial.begin(115200);
-
-    // uint16 vcc = ESP.getVcc();
-    // Serial.println(vcc);
-    // if (vcc < 2800)
-    // {
-    //     Serial.println("deep sleep max");
-    //     ESP.deepSleep(ESP.deepSleepMax());
-    // }
 
     if (!run_wifi())
     {
