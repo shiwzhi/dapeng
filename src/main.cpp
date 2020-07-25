@@ -11,7 +11,7 @@
 
 #define sensorType "DHT11"
 
-const char *version = "1.7.3";
+const char *version = "1.7.4";
 ADC_MODE(ADC_VCC);
 const char *host = "moe.swz1994.xyz";
 const int httpsPort = 9527;
@@ -26,7 +26,7 @@ ESP8266WiFiMulti wifiMulti;
 DHT dht(D2, DHT11);
 int dht_vcc = D1;
 
-void goSleep(int sec)
+void goSleepSec(int sec)
 {
   Serial.println("go sleep for " + String(sec));
   ESP.deepSleep(sec * 1000 * 1000);
@@ -85,7 +85,7 @@ void setup()
     wifiRetry++;
     if (wifiRetry > 60)
     {
-      goSleep(5 * 60);
+      goSleepSec(5 * 60);
     }
   }
   Serial.println("");
@@ -94,6 +94,7 @@ void setup()
   Serial.println(WiFi.localIP());
 
   dht.begin();
+  delay(1000);
   hum = dht.readHumidity();
   temp = dht.readTemperature();
   uint dht_retry = 0;
@@ -106,7 +107,7 @@ void setup()
     if (dht_retry > 50)
     {
       Serial.println("DHT Failed");
-      goSleep(5);
+      goSleepSec(5*60);
     }
   }
   Serial.println("temp:" + String(temp));
@@ -117,7 +118,7 @@ void setup()
   if (!client.connect(host, httpsPort))
   {
     Serial.println("connection failed");
-    goSleep(5 * 60);
+    goSleepSec(5 * 60);
   }
 
   Serial.println(ESP.getVcc());
@@ -146,7 +147,7 @@ void setup()
     {
       Serial.println(">>> Client Timeout !");
       client.stop();
-      goSleep(5 * 60);
+      goSleepSec(5 * 60);
     }
   }
 
@@ -194,14 +195,14 @@ void setup()
     Serial.println("closing connection");
   }
   client.stop();
-  goSleep(sleep * 60);
+  goSleepSec(sleep * 60);
 }
 
 void loop()
 {
   if (millis() - start_time > 60 * 1000)
   {
-    goSleep(5 * 60);
+    goSleepSec(5 * 60);
   }
   delay(1000);
 }
