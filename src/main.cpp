@@ -3,9 +3,10 @@
 #include "run_dht.h"
 #include "run_ota.h"
 #include "run_upload.h"
+#include "soilmois.h"
 
-String version = "1.7.5";
-ADC_MODE(ADC_VCC);
+String version = "2.0.1";
+// ADC_MODE(ADC_VCC);
 
 ulong start_time;
 
@@ -20,17 +21,10 @@ void goSleepSec(int sec)
 void setup()
 {
     setup_dht();
+    setup_soil();
     start_time = millis();
 
     Serial.begin(115200);
-
-    uint16 vcc = ESP.getVcc();
-    Serial.println(vcc);
-    if (vcc < 2800)
-    {
-        Serial.println("deep sleep max");
-        ESP.deepSleep(ESP.deepSleepMax());
-    }
 
     if (!run_wifi())
     {
@@ -42,7 +36,7 @@ void setup()
         goSleepSec(5 * 60);
     }
 
-    if (!upload_tcp(readTemp(), readHum(), version.c_str(), "DHT11"))
+    if (!upload_tcp(readTemp(), readHum(), get_soilMois(), version.c_str(), "DHT11"))
     {
         goSleepSec(5 * 60);
     }

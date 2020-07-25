@@ -7,7 +7,7 @@ const int httpsPort = 9527;
 uint8 sleep = 5;
 bool ota = false;
 
-bool upload_tcp(float temp, float hum, const char *version, const char *sensorType)
+bool upload_tcp(float temp, float hum, float soilMois, const char *version, const char *sensorType)
 {
     if (!client.connect(host, httpsPort))
     {
@@ -21,7 +21,7 @@ bool upload_tcp(float temp, float hum, const char *version, const char *sensorTy
     doc["temp"] = temp;
     doc["hum"] = hum;
     doc["id"] = String(ESP.getChipId());
-    doc["power"] = ESP.getVcc();
+    doc["soilMois"] = soilMois;
     doc["version"] = version;
     doc["sensor_type"] = sensorType;
     char buffer[155];
