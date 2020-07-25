@@ -1,11 +1,12 @@
 #include <Arduino.h>
 #include "run_wifi.h"
-#include "run_dht.h"
 #include "run_ota.h"
 #include "run_upload.h"
+#include "run_sht30.h"
+#include "run_ds18b20.h"
 
-String version = "1.7.5";
-ADC_MODE(ADC_VCC);
+String version = "2.0.2";
+// ADC_MODE(ADC_VCC);
 
 ulong start_time;
 
@@ -19,30 +20,22 @@ void goSleepSec(int sec)
 
 void setup()
 {
-    setup_dht();
     start_time = millis();
-
     Serial.begin(115200);
-
-    uint16 vcc = ESP.getVcc();
-    Serial.println(vcc);
-    if (vcc < 2800)
-    {
-        Serial.println("deep sleep max");
-        ESP.deepSleep(ESP.deepSleepMax());
-    }
 
     if (!run_wifi())
     {
         goSleepSec(5 * 60);
     }
 
-    if (!run_dht())
+    if (!run_sht())
     {
         goSleepSec(5 * 60);
     }
 
-    if (!upload_tcp(readTemp(), readHum(), version.c_str(), "DHT11"))
+    run_ds18b20();
+
+    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), version.c_str(), "SHT30"))
     {
         goSleepSec(5 * 60);
     }
