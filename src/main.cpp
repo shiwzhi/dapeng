@@ -4,7 +4,7 @@
 #include "run_ota.h"
 #include "run_upload.h"
 
-String version = "2.0.3";
+String version = "2.0.4";
 ulong start_time;
 
 void goSleepSec(int sec)

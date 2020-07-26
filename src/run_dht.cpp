@@ -16,16 +16,17 @@ void setup_dht()
 
 bool run_dht()
 {
+    delay(1000);
     hum = dht.readHumidity();
     temp = dht.readTemperature();
     uint dht_retry = 0;
     while (isnan(temp) || isnan(hum))
     {
-        delay(100);
+        delay(1000);
         hum = dht.readHumidity();
         temp = dht.readTemperature();
         dht_retry++;
-        if (dht_retry > 50)
+        if (dht_retry > 20)
         {
             Serial.println("DHT Failed");
             return false;
