@@ -5,9 +5,7 @@
 #include "run_sht30.h"
 #include "run_ds18b20.h"
 
-String version = "2.0.2";
-// ADC_MODE(ADC_VCC);
-
+const char* version = "2.0.3";
 ulong start_time;
 
 void goSleepSec(int sec)
@@ -28,6 +26,8 @@ void setup()
         goSleepSec(5 * 60);
     }
 
+    run_ota(version);
+
     if (!run_sht())
     {
         goSleepSec(5 * 60);
@@ -35,15 +35,11 @@ void setup()
 
     run_ds18b20();
 
-    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), version.c_str(), "SHT30"))
+    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), "SHT30"))
     {
         goSleepSec(5 * 60);
     }
 
-    if (read_ota())
-    {
-        run_ota(version.c_str());
-    }
 
     goSleepSec(read_sleep() * 60);
 }
