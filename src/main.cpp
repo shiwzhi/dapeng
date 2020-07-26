@@ -4,7 +4,7 @@
 #include "run_ota.h"
 #include "run_upload.h"
 
-String version = "2.0.4";
+const char* version = "2.0.5";
 ulong start_time;
 
 void goSleepSec(int sec)
@@ -30,20 +30,18 @@ void setup()
         goSleepSec(5 * 60);
     }
 
+    run_ota(version);
+
     if (!run_dht())
     {
         goSleepSec(5 * 60);
     }
 
-    if (!upload_tcp(readTemp(), readHum(), version.c_str(), "DHT11"))
+    if (!upload_tcp(readTemp(), readHum(), "DHT11"))
     {
         goSleepSec(5 * 60);
     }
 
-    if (read_ota())
-    {
-        run_ota(version.c_str());
-    }
 
     goSleepSec(read_sleep() * 60);
 }

@@ -7,7 +7,7 @@ const int httpsPort = 9527;
 uint8 sleep = 5;
 bool ota = false;
 
-bool upload_tcp(float temp, float hum, const char *version, const char *sensorType)
+bool upload_tcp(float temp, float hum, const char *sensorType)
 {
     if (!client.connect(host, httpsPort))
     {
@@ -27,7 +27,6 @@ bool upload_tcp(float temp, float hum, const char *version, const char *sensorTy
     doc["hum"] = hum;
     doc["id"] = String(ESP.getChipId());
     doc["soilMois"] = soilMois;
-    doc["version"] = version;
     doc["sensor_type"] = sensorType;
     char buffer[180];
 
@@ -54,11 +53,6 @@ bool upload_tcp(float temp, float hum, const char *version, const char *sensorTy
         sleep = sleep_read;
     }
 
-    if (client.read() == 1)
-    {
-        ota = true;
-    }
-
     client.stop();
     return true;
 }
@@ -66,9 +60,4 @@ bool upload_tcp(float temp, float hum, const char *version, const char *sensorTy
 uint8 read_sleep()
 {
     return sleep;
-}
-
-bool read_ota()
-{
-    return ota;
 }
