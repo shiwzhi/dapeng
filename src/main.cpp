@@ -4,7 +4,7 @@
 #include "run_ota.h"
 #include "run_upload.h"
 
-String version = "2.0.0";
+String version = "2.0.1";
 ADC_MODE(ADC_VCC);
 
 ulong start_time;
