@@ -16,6 +16,7 @@ void setup_dht()
 
 bool run_dht()
 {
+    delay(1000);
     hum = dht.readHumidity();
     temp = dht.readTemperature();
     uint dht_retry = 0;
