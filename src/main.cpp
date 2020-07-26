@@ -1,16 +1,11 @@
 #include <Arduino.h>
-ADC_MODE(ADC_VCC);
 #include "run_wifi.h"
 #include "run_ota.h"
 #include "run_upload.h"
 #include "run_sht30.h"
 
-
-
-
-String version = "2.0.2";
-
-
+ADC_MODE(ADC_VCC);
+const char* version = "2.0.2";
 ulong start_time;
 
 void goSleepSec(int sec)
@@ -31,20 +26,17 @@ void setup()
         goSleepSec(5 * 60);
     }
 
+    run_ota(version);
+
     if (!run_sht())
     {
         goSleepSec(5 * 60);
     }
 
 
-    if (!upload_tcp(readTemp(), readHum(), version.c_str(), "SHT30"))
+    if (!upload_tcp(readTemp(), readHum(), "SHT30"))
     {
         goSleepSec(5 * 60);
-    }
-
-    if (read_ota())
-    {
-        run_ota(version.c_str());
     }
 
     goSleepSec(read_sleep() * 60);
