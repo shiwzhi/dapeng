@@ -16,10 +16,17 @@ void setup_dht()
 
 bool run_dht()
 {
-    delay(2000);
     hum = dht.readHumidity();
     temp = dht.readTemperature();
     uint dht_retry = 0;
+
+    for(int i = 0; i < 2; i++)
+    {
+        hum = dht.readHumidity();
+        temp = dht.readTemperature();
+        delay(1000);
+    }
+
     while (isnan(temp) || isnan(hum))
     {
         delay(1000);
