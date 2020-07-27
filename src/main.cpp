@@ -4,6 +4,7 @@
 #include "run_upload.h"
 #include "run_sht30.h"
 #include "run_ds18b20.h"
+#include "run_soilMois.h"
 
 const char* version = "2.0.3";
 ulong start_time;
@@ -20,6 +21,7 @@ void setup()
 {
     start_time = millis();
     Serial.begin(115200);
+    setup_soilMois();
 
     if (!run_wifi())
     {
@@ -32,10 +34,10 @@ void setup()
     {
         goSleepSec(5 * 60);
     }
-
+    
     run_ds18b20();
 
-    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), "SHT30"))
+    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), read_soilMois(), "SHT30"))
     {
         goSleepSec(5 * 60);
     }
