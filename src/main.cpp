@@ -6,7 +6,7 @@
 #include "run_ds18b20.h"
 
 ADC_MODE(ADC_VCC);
-const char* version = "2.0.2";
+String version = "2.0.2";
 ulong start_time;
 
 void goSleepSec(int sec)
@@ -38,7 +38,7 @@ void setup()
         goSleepSec(5 * 60);
     }
 
-    if (!upload_tcp(readTemp(), readHum(), "SHT30"))
+    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), "SHT30"))
     {
         goSleepSec(5 * 60);
     }

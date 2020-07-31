@@ -5,10 +5,8 @@ const char *host = "dapeng.swz1994.xyz";
 const int httpsPort = 9527;
 
 uint8 sleep = 5;
-bool ota = false;
 
-
-bool upload_tcp(float temp, float hum, const char *sensorType)
+bool upload_tcp(float temp, float hum, float soilTemp, const char *sensorType)
 {
     if (!client.connect(host, httpsPort))
     {
@@ -16,7 +14,7 @@ bool upload_tcp(float temp, float hum, const char *sensorType)
         return false;
     }
 
-    const size_t capacity = JSON_OBJECT_SIZE(5);
+    const size_t capacity = JSON_OBJECT_SIZE(7);
     DynamicJsonDocument doc(capacity);
 
     doc["temp"] = temp;
@@ -24,7 +22,8 @@ bool upload_tcp(float temp, float hum, const char *sensorType)
     doc["id"] = String(ESP.getChipId());
     doc["power"] = ESP.getVcc();
     doc["sensor_type"] = sensorType;
-    char buffer[124];
+    doc["soilTemp"] = soilTemp;
+    char buffer[160];
 
     serializeJson(doc, buffer);
 

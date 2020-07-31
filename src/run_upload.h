@@ -3,6 +3,6 @@
 #include <ArduinoJson.h>
 
 
-bool upload_tcp(float temp, float hum, const char* sensorType);
+bool upload_tcp(float temp, float hum, float soilTemp, const char* sensorType);
 
 uint8 read_sleep(); 

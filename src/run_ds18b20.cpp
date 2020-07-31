@@ -1,7 +1,5 @@
 #include "run_ds18b20.h"
-
-
-OneWire ds(12); // on pin 10 (a 4.7K resistor is necessary)
+OneWire ds(13); // on pin 10 (a 4.7K resistor is necessary)
 
 float soilTemp = 0;
 
