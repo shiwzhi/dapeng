@@ -7,7 +7,7 @@ const int httpsPort = 9527;
 uint8 sleep = 5;
 bool ota = false;
 
-bool upload_tcp(float temp, float hum, const char *sensorType)
+bool upload_tcp(float temp, float hum, float soilTemp, const char *sensorType)
 {
     if (!client.connect(host, httpsPort))
     {
@@ -27,8 +27,9 @@ bool upload_tcp(float temp, float hum, const char *sensorType)
     doc["hum"] = hum;
     doc["id"] = String(ESP.getChipId());
     doc["soilMois"] = soilMois;
+    doc["soilTemp"] = soilTemp;
     doc["sensor_type"] = sensorType;
-    char buffer[180];
+    char buffer[200];
 
     serializeJson(doc, buffer);
 

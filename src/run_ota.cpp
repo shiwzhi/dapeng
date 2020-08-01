@@ -23,7 +23,7 @@ void update_error(int err)
     Serial.printf("CALLBACK:  HTTP update fatal error code %d\n", err);
 }
 
-void run_ota(const char *version)
+void run_ota(String version)
 {
     ESPhttpUpdate.setLedPin(LED_BUILTIN, LOW);
     ESPhttpUpdate.onStart(update_started);

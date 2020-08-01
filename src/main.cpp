@@ -3,8 +3,9 @@
 #include "run_dht.h"
 #include "run_ota.h"
 #include "run_upload.h"
+#include "run_ds18b20.h"
 
-const char* version = "2.0.5";
+String version = "2.0.5";
 ulong start_time;
 
 void goSleepSec(int sec)
@@ -37,7 +38,11 @@ void setup()
         goSleepSec(5 * 60);
     }
 
-    if (!upload_tcp(readTemp(), readHum(), "DHT11"))
+    if (!run_ds18b20()) {
+        goSleepSec(5 * 60);
+    }
+
+    if (!upload_tcp(readTemp(), readHum(), get_soilTemp(), "DHT11"))
     {
         goSleepSec(5 * 60);
     }
